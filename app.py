@@ -11,9 +11,11 @@
 #  3. Full State Mapping: All 36 regions included.
 #  4. Sanity Checks: Rejects fake/paper gold rates automatically.
 # ==============================================================================
-from flask_cors import CORS
+from flask import Flask, render_template, jsonify, request
+from flask_cors import CORS  # This is the line we added for Hostinger
+
 app = Flask(__name__)
-CORS(app) # This line MUST be here to allow Hostinger to talk to Render
+CORS(app)  # This allows Hostinger to talk to Render
 import os
 import json
 import time
@@ -378,3 +380,4 @@ if __name__ == '__main__':
     
 
     app.run(debug=True, port=5000)
+
