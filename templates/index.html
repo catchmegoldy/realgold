@@ -1,0 +1,1181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gold Price Today | Track </title>
+    
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Montserrat:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        :root {
+            --bg: #FFFFFF;
+            --card-bg: #FFFFFF;
+            --gold: #D4AF37;
+            --gold-gradient: linear-gradient(45deg, #BF953F, #FCF6BA, #B38728, #FBF5B7, #AA771C);
+            --text: #333333;
+            --text-dim: #666666;
+            --border: 1px solid rgba(212, 175, 55, 0.3);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Montserrat', sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* --- HEADER --- */
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 10px 5%; /* Reduced vertical padding slightly for better logo fit */
+            border-bottom: 2px solid #B59410; /* Updated to your gold color */
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            position: sticky; 
+            top: 0; 
+            z-index: 100;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 15px; /* Space between logo and "GOLD RATE" text */
+            text-decoration: none;
+        }
+
+        /* LOGO SIZE SETTINGS */
+        .header-logo {
+            height: 50px;       /* Set your preferred height here */
+            width: auto;        /* Maintains aspect ratio */
+            max-width: 50px;   /* Safety limit so logo doesn't push text too far */
+            object-fit: contain;
+        }
+
+        .brand-text {
+            font-family: 'Cinzel', serif;
+            font-size: 1.8rem;
+            color: #E5B80B; /* Using your specific gold color */
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .datetime-box { text-align: right; }
+        .time { font-size: 1.2rem; font-weight: 600; color: #B59410; }
+        .date { font-size: 0.8rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; }
+
+        /* Responsive Sizing for Mobile */
+        @media (max-width: 600px) {
+            .header-logo { height: 35px; }
+            .brand-text { font-size: 1.2rem; }
+            header { padding: 10px 3%; }
+        }
+
+        /* --- HERO --- */
+        .container { max-width: 1200px; margin: 0 auto; padding: 30px 20px; }
+
+        .location-panel {
+            background: var(--card-bg);
+            border: var(--border);
+            padding: 20px; border-radius: 12px;
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 40px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        .loc-info h2 { font-family: 'Cinzel', serif; color: var(--gold); margin-bottom: 5px; }
+        .loc-info span { color: var(--text-dim); font-size: 0.9rem; }
+        
+        select {
+            background: #fff; color: #333; border: 1px solid #ccc;
+            padding: 10px 20px; border-radius: 30px; outline: none;
+            font-family: 'Montserrat', sans-serif; cursor: pointer;
+        }
+
+        /* --- PRICES --- */
+        .price-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 25px; margin-bottom: 40px;
+        }
+
+        .price-card {
+            background: var(--card-bg);
+            border: var(--border); border-radius: 16px;
+            padding: 30px; position: relative; overflow: hidden;
+            transition: transform 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+        }
+        .price-card:hover { transform: translateY(-5px); box-shadow: 0 10px 30px rgba(212, 175, 55, 0.15); }
+        
+        .price-card::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px;
+            background: var(--gold-gradient);
+        }
+        /* --- CALCULATOR STYLES --- */
+.calculator-card {
+    background: var(--card-bg);
+    border: var(--border);
+    border-radius: 16px;
+    padding: 25px;
+    margin-bottom: 40px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+}
+
+.calc-header {
+    font-family: 'Cinzel', serif;
+    font-weight: bold;
+    color: var(--gold);
+    font-size: 1.4rem;
+    margin-bottom: 20px;
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+    padding-bottom: 10px;
+}
+
+.calc-modes {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.mode-btn {
+    flex: 1;
+    padding: 12px;
+    border: 1px solid #ccc;
+    background: transparent;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+    color: #666;
+    transition: 0.3s;
+}
+
+.mode-btn.active {
+    background: var(--gold);
+    color: white;
+    border-color: var(--gold);
+}
+
+.calc-body {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    align-items: center;
+}
+
+@media (max-width: 768px) {
+    .calc-body { grid-template-columns: 1fr; } /* Stack on mobile */
+}
+
+.input-group label {
+    display: block;
+    font-size: 0.9rem;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 15px;
+    font-size: 1.2rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-family: 'Montserrat', sans-serif;
+    outline: none;
+}
+
+.input-group input:focus { border-color: var(--gold); }
+
+.purity-group { margin-top: 15px; }
+
+.radio-options {
+    display: flex;
+    gap: 20px;
+    margin-top: 10px;
+}
+
+.result-box {
+    background: #fcfcfc;
+    border: 1px dashed #ddd;
+    padding: 20px;
+    border-radius: 12px;
+    text-align: center;
+}
+
+.result-label { font-size: 0.9rem; color: #666; text-transform: uppercase; }
+.result-value { 
+    font-size: 2.2rem; 
+    font-family: 'Cinzel', serif; 
+    color: var(--text); 
+    margin: 10px 0;
+    font-weight: bold;
+}
+/* Article Content Styling */
+        .content-article {
+            margin-top: 50px;
+            padding: 20px;
+            line-height: 1.8;
+            font-family: 'Montserrat', sans-serif;
+            color: var(--text);
+        }
+
+        .content-article h2 {
+            font-family: 'Cinzel', serif;
+            color: var(--gold);
+            font-size: 2rem;
+            margin: 45px 0 20px 0;
+            border-bottom: 2px solid var(--gold);
+            padding-bottom: 10px;
+            display: inline-block;
+        }
+
+        .content-article h3 {
+            font-family: 'Cinzel', serif;
+            color: #444;
+            margin: 30px 0 15px 0;
+            font-size: 1.3rem;
+        }
+
+        .content-article p {
+            margin-bottom: 20px;
+            font-size: 1.05rem;
+            text-align: justify;
+        }
+
+        .content-article ul {
+            margin-bottom: 25px;
+            padding-left: 20px;
+        }
+
+        .content-article li {
+            margin-bottom: 12px;
+        }
+
+        .content-article blockquote {
+            border-left: 5px solid var(--gold);
+            padding: 20px;
+            background: #fdfaf0;
+            margin: 30px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .content-article table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 30px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .content-article th {
+            background-color: #f8f8f8;
+            color: var(--gold);
+            font-family: 'Cinzel', serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .content-article code {
+            background: #eee;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-family: monospace;
+            color: #d63384;
+        }
+
+        @media (max-width: 768px) {
+            .content-article h2 { font-size: 1.5rem; }
+            .content-article { padding: 10px; }
+        }
+.result-note { font-size: 0.75rem; color: #999; }
+        /* Article Content Alignment Fix */
+        .article-container {
+            max-width: 1200px; /* Matches your main container width [cite: 56] */
+            margin: 0 auto;
+            padding: 0 20px; /* Matches your main container padding [cite: 56] */
+        }
+
+        .content-article {
+            margin-top: 40px;
+            padding: 20px 0; /* Removing horizontal padding to align with card edges */
+            line-height: 1.8;
+            font-family: 'Montserrat', sans-serif;
+            color: var(--text);
+        }
+
+        .content-article h2 {
+            font-family: 'Cinzel', serif;
+            color: #B59410; /* Your specific golden colour */
+            font-size: 1.8rem;
+            margin: 40px 0 20px 0;
+            border-bottom: 2px solid #B59410;
+            padding-bottom: 8px;
+            display: inline-block;
+        }
+
+        .content-article h3 {
+            font-family: 'Cinzel', serif;
+            color: #333;
+            margin: 25px 0 15px 0;
+            font-size: 1.2rem;
+        }
+
+        .content-article p {
+            margin-bottom: 20px;
+            font-size: 1.05rem;
+            text-align: justify;
+        }
+
+        .content-article table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 30px 0;
+            border: 1px solid rgba(181, 148, 16, 0.2);
+        }
+
+        .content-article th {
+            background-color: #f9f9f9;
+            color: #B59410;
+            padding: 12px;
+            border: 1px solid #eee;
+        }
+
+        .content-article td {
+            padding: 12px;
+            border: 1px solid #eee;
+        }
+
+        .content-article blockquote {
+            border-left: 4px solid #B59410;
+            padding: 15px 25px;
+            background: #fdfaf0;
+            margin: 25px 0;
+            font-style: italic;
+        }
+
+        .p-label { color: var(--text-dim); text-transform: uppercase; letter-spacing: 2px; font-size: 0.8rem; margin-bottom: 15px; }
+        .p-value { font-size: 2.8rem; font-weight: 300; color: #333; font-family: 'Cinzel', serif; }
+        .p-unit { font-size: 1rem; color: var(--gold); margin-top: 5px; }
+        .p-change { margin-top: 15px; font-size: 0.9rem; color: #2e7d32; display: flex; align-items: center; gap: 5px; }
+
+        /* --- CHART --- */
+        .chart-section {
+            background: var(--card-bg); border: var(--border);
+            border-radius: 16px; padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+        }
+        .chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .chart-title { font-family: 'Cinzel', serif; color: var(--gold); font-size: 1.4rem; }
+
+        /* --- SPLIT LAYOUT STYLES --- */
+
+        /* Default (Mobile): Stack everything */
+        .price-grid-split {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .col-header {
+            font-family: 'Cinzel', serif;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+            padding-bottom: 10px;
+        }
+
+        .price-card {
+            background: var(--card-bg);
+            border: var(--border);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 15px; /* Spacing between cards in same col */
+            position: relative;
+            transition: transform 0.3s ease;
+        }
+
+        .price-card:hover { transform: translateY(-3px); border-color: var(--gold); }
+
+        .p-value-sm { font-family: 'Cinzel', serif; font-size: 2rem; color: #333; }
+        .mini-card { padding: 20px; border: 1px solid rgba(0,0,0,0.05); }
+
+        /* --- LAPTOP SPECIFIC (Side by Side) --- */
+        @media (min-width: 1024px) {
+            .price-grid-split {
+                flex-direction: row; /* Make them sit side-by-side */
+                gap: 40px;
+            }
+
+            .col-24k, .col-22k {
+                flex: 1; /* Each column takes 50% width */
+            }
+            
+            /* Optional: Add a subtle divider line between columns */
+            .col-24k {
+                border-right: 1px solid rgba(0,0,0,0.05);
+                padding-right: 20px;
+            }
+        }
+        
+        .toggle-btn {
+            background: transparent; border: 1px solid #ccc; color: #666;
+            padding: 5px 15px; border-radius: 20px; cursor: pointer; transition: 0.3s;
+        }
+        .toggle-btn.active { background: var(--gold); color: #fff; border-color: var(--gold); font-weight: bold; }
+
+        /* --- FOOTER MARQUEE --- */
+        .marquee-container {
+            position: fixed; bottom: 0; left: 0; width: 100%;
+            background: #f8f8f8; border-top: 1px solid #e0e0e0;
+            padding: 10px 0; overflow: hidden; white-space: nowrap;
+        }
+        .marquee-content { display: inline-block; animation: scroll 40s linear infinite; }
+        .mq-item { display: inline-block; padding: 0 30px; color: #555; font-size: 0.9rem; border-right: 1px solid #ddd; }
+        .mq-item b { color: #AA771C; margin-left: 5px; }
+
+        @keyframes scroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+
+        /* SPINNER */
+        #loader { display: flex; justify-content: center; margin-top: 50px; }
+        .spinner { width: 40px; height: 40px; border: 3px solid rgba(0,0,0,0.1); border-top: 3px solid var(--gold); border-radius: 50%; animation: spin 1s infinite linear; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        /* --- MAIN FOOTER --- */
+        .main-footer {
+            background: #1a1a1a; /* Dark background for contrast */
+            color: #ffffff;
+            padding: 60px 0 100px 0; /* Extra bottom padding to clear the fixed marquee */
+            margin-top: 60px;
+            border-top: 3px solid var(--gold);
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .footer-logo {
+            font-family: 'Cinzel', serif;
+            font-size: 1.8rem;
+            color: var(--gold);
+            margin-bottom: 20px;
+            letter-spacing: 2px;
+        }
+
+        .footer-nav {
+            display: flex;
+            gap: 40px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .footer-nav a {
+            color: #bbbbbb;
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: color 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .footer-nav a:hover {
+            color: var(--gold);
+        }
+
+        .footer-divider {
+            width: 50px;
+            height: 2px;
+            background: var(--gold);
+            margin-bottom: 30px;
+            opacity: 0.5;
+        }
+
+        .footer-info {
+            color: #666666;
+            font-size: 0.85rem;
+            line-height: 1.6;
+            max-width: 600px;
+        }
+
+        .copyright {
+            margin-top: 20px;
+            color: #444444;
+            font-size: 0.8rem;
+        }
+
+        @media (max-width: 768px) {
+            .footer-nav { gap: 20px; }
+            .main-footer { padding-bottom: 120px; } /* More space for mobile marquee */
+        }
+
+    </style>
+</head>
+<body>
+
+    <header>
+    <a href="/" class="brand">
+        <img src="/static/logo.png" alt="Gold Rate Logo" class="header-logo">
+        <span class="brand-text">Gold Rate</span>
+    </a>
+    <div class="datetime-box">
+        <div class="time" id="clockTime">--:--:--</div>
+        <div class="date" id="clockDate">-- -- ----</div>
+    </div>
+</header>
+
+    <div class="container">
+        
+        <div class="location-panel">
+            <div class="loc-info">
+                <h2 id="currentLocation">National Average</h2>
+                <span id="locStatus"><i class="fas fa-map-marker-alt"></i> Live Retail Market Rates</span>
+            </div>
+            <select id="stateSelect" onchange="manualStateChange(this.value)">
+                <option value="National">Select State / City...</option>
+                </select>
+        </div>
+
+        <div id="loader"><div class="spinner"></div></div>
+
+        <div id="dashboard" style="display: none;">
+            
+            <div class="price-grid-split">
+    
+    <div class="col-24k">
+        <h3 class="col-header" style="color:#D4AF37;">24K PURE GOLD (99.9%)</h3>
+        
+        <div class="price-card">
+            <div class="p-label">Price per 10 Grams</div>
+            <div class="p-value">₹ <span id="price24">0,00,000</span></div>
+            <div class="p-change"><i class="fas fa-arrow-up"></i> Standard Market Rate</div>
+        </div>
+
+        <div class="price-card mini-card">
+            <div class="p-label">Price per 1 Gram</div>
+            <div class="p-value-sm">₹ <span id="price24_1g">00,000</span></div>
+        </div>
+    </div>
+
+    <div class="col-22k">
+        <h3 class="col-header" style="color:#333;">22K JEWELLERY (91.6%)</h3>
+        
+        <div class="price-card">
+            <div class="p-label">Price per 10 Grams</div>
+            <div class="p-value">₹ <span id="price22">0,00,000</span></div>
+            <div class="p-change"><i class="fas fa-check-circle"></i> BIS Hallmarked</div>
+        </div>
+
+        <div class="price-card mini-card">
+            <div class="p-label">Price per 1 Gram</div>
+            <div class="p-value-sm">₹ <span id="price22_1g">00,000</span></div>
+        </div>
+    </div>
+
+</div>
+
+    <div class="calculator-card">
+    <div class="calc-header">
+        <i class="fas fa-calculator"></i>  Gold Calculator
+    </div>
+
+    <div class="calc-modes">
+        <button class="mode-btn active" onclick="switchCalcMode('grams')" id="btn-mode-grams">
+            <i class="fas fa-weight-hanging"></i> By Weight (Grams)
+        </button>
+        <button class="mode-btn" onclick="switchCalcMode('budget')" id="btn-mode-budget">
+            ₹ By Budget (INR)
+        </button>
+    </div>
+
+    <div class="calc-body">
+        
+        <div class="input-group">
+            <label id="calc-input-label">Enter Weight (in Grams)</label>
+            <input type="number" id="calcInput" placeholder="e.g. 5" oninput="calculateGold()" step="0.01">
+        </div>
+
+        <div class="purity-group">
+            <label>Select Purity:</label>
+            <div class="radio-options">
+                <label class="radio-container">
+                    <input type="radio" name="purity" value="24" checked onchange="calculateGold()">
+                    <span class="checkmark"></span> 24K (99.9%)
+                </label>
+                <label class="radio-container">
+                    <input type="radio" name="purity" value="22" onchange="calculateGold()">
+                    <span class="checkmark"></span> 22K (91.6%)
+                </label>
+            </div>
+        </div>
+
+        <div class="result-box">
+            <div class="result-label" id="calc-result-label">Estimated Cost</div>
+            <div class="result-value" id="calcResult">₹ 0</div>
+            <div class="result-note">*Based on current live market rates in your selected location.</div>
+        </div>
+
+    </div>
+</div>
+
+            <div class="chart-section">
+                <div class="chart-header">
+                    <div class="chart-title">Market Analysis</div>
+                    <div>
+                        <button class="toggle-btn active" onclick="setChart('weekly', this)">Weekly</button>
+                        <button class="toggle-btn" onclick="setChart('monthly', this)">Monthly</button>
+                    </div>
+                </div>
+                <div style="height: 350px; width: 100%;">
+                    <canvas id="goldChart"></canvas>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <div class="article-container">
+    <article class="content-article">
+        <section id="intro">
+            <h2>The Enduring Allure of Gold</h2>
+            <p>
+                For centuries, gold has been more than just a precious metal; it has been the ultimate store of value, a symbol of wealth, and a hedge against economic uncertainty. As we navigate through 2025 and into 2026, the question on every investor's mind remains: <strong>"What is the gold rate today, and where is it heading?"</strong>
+            </p>
+            <p>
+                In recent years, we have witnessed unprecedented volatility in global markets. From fluctuating currency values to geopolitical tensions, traditional investments have faced severe headwinds. Yet, amidst this chaos, gold has not only held its ground but has surged to new historical highs. Whether you are a seasoned investor looking to diversify your portfolio, a central bank accumulating reserves, or an individual buying jewelry for a wedding, understanding the nuances of the gold rate is critical.
+            </p>
+            <p>
+                This website explores the current landscape of gold prices, analyzes the factors driving the market, and provides an outlook for the coming years. We will dismantle the complexities of how gold rates are determined and help you decide if now is the right time to invest in the "yellow metal."
+            </p>
+        </section>
+
+        
+
+        <section id="market-trends-2025">
+            <h2>The State of Gold in 2025: A Positive Prognosis</h2>
+            <p>
+                The financial years 2024 and 2025 have been pivotal for precious metals. Analysts from major financial institutions like J.P. Morgan and the World Gold Council have noted a definitive <strong>bullish trend</strong> (upward movement) in gold prices. But what is fueling this surge?
+            </p>
+            <p>
+                Unlike stocks or bonds, gold does not pay dividends or interest. Its value is derived from its scarcity and its role as a monetary anchor. In 2025, we have seen gold prices test resistance levels that were previously thought unreachable.
+            </p>
+            <h3>Key Market Highlights:</h3>
+            <ul>
+                <li><strong>Record Highs:</strong> Gold prices breached upto Rs. 2,38,000 per 31.1 grams mark internationally, driven by a weakening US Dollar and aggressive buying by Eastern central banks.</li>
+                <li><strong>Decoupling from Interest Rates:</strong> Historically, high interest rates meant lower gold prices (as investors preferred yield-bearing assets). However, 2025 has seen a "decoupling" phenomenon where gold prices remained high even as Federal Reserve rates fluctuated, signaling a fundamental shift in how the market values gold.</li>
+                <li><strong>Retail Demand Resilience:</strong> Despite high prices, demand in key markets like India and China has remained robust, particularly during festival seasons and wedding periods.</li>
+            </ul>
+        </section>
+
+        <section id="factors-influencing-price">
+            <h2>What Determines the Gold Rate? 7 Important Factors</h2>
+            <p>
+                If you check a gold rate website daily, you'll notice the price changes constantly. It acts like a living organism, reacting to global whispers and shouts. Understanding these seven drivers is essential for predicting future movements.
+            </p>
+
+            <h3>1. Central Bank Reserves</h3>
+            <p>
+                Central banks are the whales of the gold market. In the last two years, nations like China, Russia, India, and Turkey have been aggressively buying gold to diversify their reserves away from the US Dollar. When central banks buy, they reduce the available supply in the open market, naturally driving the price up. This trend of "de-dollarization" is perhaps the strongest pillar supporting current gold rates.
+            </p>
+
+            <h3>2. Inflation and Economic Data</h3>
+            <p>
+                Gold is famously known as an <strong>inflation hedge</strong>. When inflation rises, the purchasing power of fiat currency (like the Dollar, Euro, or Rupee) falls. Investors flock to gold to protect their wealth. Consequently, whenever high inflation data is released, you will often see an immediate spike in the gold rate.
+            </p>
+
+            <h3>3. Geopolitical Stability</h3>
+            <p>
+                Gold is the "crisis commodity." During times of war, political instability, or global pandemics, investors flee risky assets like stocks and pour money into gold. The ongoing geopolitical tensions in Eastern Europe and the Middle East have kept a "war premium" on the price of gold, preventing it from falling significantly even during economic corrections.
+            </p>
+
+            <h3>4. Currency Fluctuations</h3>
+            <p>
+                Gold is internationally priced in US Dollars. There is typically an inverse relationship between the Dollar Index (DXY) and gold prices.
+            </p>
+            <blockquote>
+                <strong>Rule of Thumb:</strong> When the US Dollar gets stronger, gold becomes more expensive for other countries to buy, often lowering demand and price. When the Dollar weakens, gold prices usually rise.
+            </blockquote>
+
+            <h3>5. Interest Rates (The Federal Reserve Policy)</h3>
+            <p>
+                The policies of the US Federal Reserve are scrutinized by gold traders. Lower interest rates reduce the "opportunity cost" of holding non-yielding gold, making it more attractive. Conversely, higher rates can dampen gold's appeal. However, as noted earlier, this correlation has weakened recently due to overwhelming demand from central banks.
+            </p>
+
+            <h3>6. Supply and Mining Costs</h3>
+            <p>
+                We have already mined most of the "easy" gold on Earth. New mining projects are deeper, more dangerous, and more expensive. As the cost of energy and labor rises, the "floor price" for gold—the price below which miners will stop producing—also rises, supporting the overall market rate.
+            </p>
+
+            <h3>7. Import Duties and Taxes</h3>
+            <p>
+                For consumers in import-dependent nations (like India), the local gold rate is heavily influenced by government import duties and taxes (such as GST or VAT). A hike in import duty can instantly increase the domestic price of gold, regardless of international trends.
+            </p>
+        </section>
+
+        <section id="investment-types">
+            <h2>Physical vs. Digital: How to Invest in Gold Today</h2>
+            <p>
+                Gone are the days when buying gold meant only storing heavy bars in a bank locker. Today, the modern investor has a plethora of options, each with its own risk and reward profile.
+            </p>
+
+            <h3>Physical Gold (Jewelry, Coins, Bars)</h3>
+            <p>
+                <strong>Best for:</strong> Cultural use, emotional value, and emergency liquidity.
+                <br>
+                <strong>Pros:</strong> Tangible asset; no counterparty risk (you own it outright).
+                <br>
+                <strong>Cons:</strong> Storage costs; theft risk; "making charges" on jewelry can eat into investment returns (often 10-20% of the cost).
+            </p>
+
+            <h3>Digital Gold</h3>
+            <p>
+                <strong>Best for:</strong> Small investors and those wanting convenience.
+                <br>
+                <strong>Pros:</strong> Buy gold for as little as $1 or ₹100; stored in insured vaults by the provider; easy to sell instantly.
+                <br>
+                <strong>Cons:</strong> Often includes a spread (difference between buy and sell price); not regulated as strictly as ETFs in some jurisdictions.
+            </p>
+
+            <h3>Gold ETFs (Exchange Traded Funds)</h3>
+            <p>
+                <strong>Best for:</strong> Serious investors and portfolio diversifiers.
+                <br>
+                <strong>Pros:</strong> Highly liquid (trade like stocks); very low spread; transparent pricing based on international rates; no storage hassles.
+                <br>
+                <strong>Cons:</strong> You don't physically hold the metal (though it is backed by physical gold).
+            </p>
+
+            <h3>Sovereign Gold Bonds (SGBs)</h3>
+            <p>
+                <strong>Best for:</strong> Long-term investors seeking income + appreciation.
+                <br>
+                <strong>Pros:</strong> Issued by governments; often pays an annual interest rate (e.g., 2.5%) on top of gold price appreciation; tax benefits in some countries.
+                <br>
+                <strong>Cons:</strong> Lock-in periods (usually 5-8 years) make them illiquid in the short term.
+            </p>
+        </section>
+
+        <section id="purity-guide">
+            <h2>Understanding Purity: 24K vs. 22K vs. 18K</h2>
+            <p>
+                When checking the gold rate, you will often see different prices for different "Karats" (K). Understanding the difference is vital to avoid overpaying.
+            </p>
+            <table border="1" cellpadding="10" cellspacing="0" class="purity-table">
+                <thead>
+                    <tr style="background-color: #f2f2f2;">
+                        <th>Karat (K)</th>
+                        <th>Purity %</th>
+                        <th>Common Usage</th>
+                        <th>Durability</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>24K</strong></td>
+                        <td>99.9%</td>
+                        <td>Coins, Bars, Investment</td>
+                        <td>Very Soft (Not for jewelry)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>22K</strong></td>
+                        <td>91.6%</td>
+                        <td>Standard Jewelry, Wedding Bands</td>
+                        <td>Durable & Value-Retentive</td>
+                    </tr>
+                    <tr>
+                        <td><strong>18K</strong></td>
+                        <td>75.0%</td>
+                        <td>Diamond/Stone-studded Jewelry</td>
+                        <td>Very Strong</td>
+                    </tr>
+                    <tr>
+                        <td><strong>14K</strong></td>
+                        <td>58.3%</td>
+                        <td>Everyday wear (US/Europe standard)</td>
+                        <td>Extremely Durable</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p>
+                <em>Note: The "Gold Rate" quoted in news is usually for 24K gold. If you are buying jewelry, the price will be calculated based on the 22K or 18K rate, plus making charges and taxes.</em>
+            </p>
+        </section>
+
+        <section id="forecast-2026">
+            <h2>The Forecast: Should You Buy Gold Now?</h2>
+            <p>
+                As we look toward 2026, the consensus among financial experts is <strong>cautiously optimistic</strong>.
+            </p>
+            <p>
+                The argument for buying gold now rests on the "Fear Trade." With global debt levels at record highs, many economists fear a looming recession or a "debt reset." In such scenarios, gold is the only asset that has no liability attached to it. It is money in its purest form.
+            </p>
+            <p>
+                However, investors should be wary of buying at "all-time highs." A common strategy is <strong>Dollar Cost Averaging (SIP)</strong>—buying small amounts of gold regularly rather than a lump sum. This protects you from buying at a market peak.
+            </p>
+            <p>
+                <strong>Verdict:</strong> Gold should ideally make up 10% to 15% of a healthy investment portfolio. It acts as the "goalkeeper" of your finances—it may not score the goals (high returns like tech stocks), but it prevents you from losing the game during a crash.
+            </p>
+        </section>
+
+        <section id="faqs">
+            <h2>Frequently Asked Questions (FAQs)</h2>
+            
+            <h3>1. Why does the gold rate change every day?</h3>
+            <p>
+                Gold is traded on international exchanges (like COMEX in New York and LME in London) 24 hours a day. Prices fluctuate based on supply and demand, currency strength, and breaking economic news.
+            </p>
+
+            <h3>2. Is 2025 a good time to sell gold?</h3>
+            <p>
+                With prices at historical highs, it is an excellent time to book profits if you bought gold years ago. However, if you are holding for long-term safety, many experts advise holding on as the long-term trend remains upward.
+            </p>
+
+            <h3>3. How is the retail gold price calculated by jewelers?</h3>
+            <p>
+                The formula is typically: 
+                <br>
+                <code>Final Price = (Price of Gold per Gram x Weight) + Making Charges + Taxes (GST/VAT) + Hallmarking Charges.</code>
+            </p>
+
+            <h3>4. What is Hallmarking?</h3>
+            <p>
+                Hallmarking is a certification of purity. Always look for the hallmark stamp (e.g., BIS Hallmark in India) to ensure you are not being sold 18K gold at 22K prices.
+            </p>
+        </section>
+    </article>
+</div>
+    <footer class="main-footer">
+        <div class="footer-content">
+            <div class="footer-logo">
+                 GOLD RATE
+            </div>
+            
+            <nav class="footer-nav">
+                <a href="#about">About Us</a>
+                <a href="#privacy">Privacy Policy</a>
+                <a href="#terms">Terms of Service</a>
+                <a href="#contact">Contact</a>
+            </nav>
+
+            <div class="footer-divider"></div>
+
+            <div class="footer-info">
+                Gold Rate is among India's leading digital platform for real-time bullion tracking. We provide high-precision market data across 36 regions to help investors make informed decisions.
+            </div>
+
+            <div class="copyright">
+                &copy; 2026 Gold Rate Services. All Rights Reserved.
+            </div>
+        </div>
+    </footer>
+
+    <div class="marquee-container">
+        <div class="marquee-content" id="marquee">
+            </div>
+    </div>
+    
+
+
+    <script>
+        // --- GLOBAL VARIABLES ---
+        let globalData = null;
+        let chartInstance = null;
+        let chartDataSets = {};
+
+        // --- 1. CLOCK (Immediate Start) ---
+        function startClock() {
+            const update = () => {
+                const now = new Date();
+                document.getElementById('clockTime').innerText = now.toLocaleTimeString();
+                document.getElementById('clockDate').innerText = now.toLocaleDateString('en-IN', {
+                    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+                });
+            };
+            setInterval(update, 1000);
+            update();
+        }
+        startClock();
+
+        // --- 2. FETCH DATA ---
+        async function init() {
+            try {
+                // Ensure the Python Backend is running for this to work
+                const response = await fetch('https://realgold-9sr6.onrender.com/api/full-data');
+                const json = await res.json();
+                
+                if (json.status === 'success') {
+                    globalData = json;
+                    chartDataSets = json.charts;
+                    
+                    // Setup UI
+                    populateDropdown();
+                    populateMarquee();
+                    
+                    // Show Dashboard
+                    document.getElementById('loader').style.display = 'none';
+                    document.getElementById('dashboard').style.display = 'block';
+
+                    // TRIGGER AUTO DETECTION HERE
+                    detectLocation();
+                    
+                }
+            } catch (e) {
+                console.error("Fetch Error:", e);
+                // Fallback UI if backend isn't running
+                document.getElementById('loader').innerHTML = '<span style="color:red">Backend not connected. Run python app.py</span>';
+            }
+        }
+
+        // --- 3. UI UPDATES ---
+        function updateDashboard(stateName, p24, p22) {
+    // Update Text
+    document.getElementById('currentLocation').innerText = stateName;
+    
+    // 10 Gram Rates
+    document.getElementById('price24').innerText = p24.toLocaleString('en-IN');
+    document.getElementById('price22').innerText = p22.toLocaleString('en-IN');
+    
+    // 1 Gram Rates (Calculated: /10)
+    let p24_1g = Math.floor(p24 / 10);
+    let p22_1g = Math.floor(p22 / 10);
+    
+    document.getElementById('price24_1g').innerText = p24_1g.toLocaleString('en-IN');
+    document.getElementById('price22_1g').innerText = p22_1g.toLocaleString('en-IN');
+    
+    // Set Dropdown value
+    document.getElementById('stateSelect').value = stateName;
+
+    renderChart('weekly');
+}
+
+        function populateDropdown() {
+            const sel = document.getElementById('stateSelect');
+            globalData.states.forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = s.name;
+                opt.innerText = s.name;
+                sel.appendChild(opt);
+            });
+        }
+
+        function manualStateChange(name) {
+            // Reset status text when manually selecting
+            document.getElementById('locStatus').innerHTML = '<i class="fas fa-map-marker-alt"></i> Manual Selection';
+            
+            const state = globalData.states.find(s => s.name === name);
+            if (state) {
+                updateDashboard(state.name, state.p24, state.p22);
+            } else if (name === "National") {
+                defaultToNational();
+            }
+        }
+
+        function populateMarquee() {
+            const mq = document.getElementById('marquee');
+            let html = '';
+            // Repeat twice for smooth scrolling
+            for(let i=0; i<2; i++) {
+                globalData.states.forEach(s => {
+                    html += `<div class="mq-item">${s.name}: <b>₹${s.p22.toLocaleString('en-IN')}</b></div>`;
+                });
+            }
+            mq.innerHTML = html;
+        }
+
+        // --- 4. IMPROVED LOCATION DETECTION ---
+        function detectLocation() {
+            // Visual Feedback
+            document.getElementById('currentLocation').innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Locating...';
+
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    async (pos) => {
+                        try {
+                            const lat = pos.coords.latitude;
+                            const lon = pos.coords.longitude;
+                            
+                            // Reverse Geocoding via OpenStreetMap (No API Key required)
+                            const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`;
+                            const res = await fetch(url);
+                            const data = await res.json();
+                            
+                            const addr = data.address;
+                            // Check City first, then State
+                            const detectedName = addr.city || addr.town || addr.state_district || addr.state || "";
+                            
+                            console.log("Detected User Location:", detectedName);
+
+                            // FUZZY MATCHING (Case Insensitive)
+                            // We check if the detected name is inside our database list
+                            let match = globalData.states.find(s => 
+                                detectedName.toLowerCase().includes(s.name.toLowerCase()) || 
+                                s.name.toLowerCase().includes(detectedName.toLowerCase())
+                            );
+
+                            // Handle Specific Mappings (e.g. Bangalore vs Bengaluru)
+                            if(!match) {
+                                if(detectedName.includes("Bengaluru")) match = globalData.states.find(s => s.name === "Bangalore");
+                                if(detectedName.includes("Gurugram")) match = globalData.states.find(s => s.name === "Delhi");
+                            }
+
+                            if (match) {
+                                document.getElementById('stateSelect').value = match.name;
+                                document.getElementById('locStatus').innerHTML = '<i class="fas fa-crosshairs"></i> GPS Detected';
+                                updateDashboard(match.name, match.p24, match.p22);
+                            } else {
+                                // Location found but not in our database -> Default to National
+                                console.log("Location found but no database match");
+                                defaultToNational();
+                            }
+                        } catch(e) {
+                            console.error("Geocoding Error", e);
+                            defaultToNational();
+                        }
+                    }, 
+                    (err) => {
+                        console.warn("Location Access Denied");
+                        defaultToNational();
+                    }
+                );
+            } else {
+                defaultToNational();
+            }
+        }
+
+        function defaultToNational() {
+            // 1. Update UI with prices and title "National Average"
+            updateDashboard("National Average", globalData.base_price, Math.floor(globalData.base_price*0.916));
+
+            // 2. FORCE the dropdown back to "National" (because updateDashboard overwrites it with the title)
+            document.getElementById('stateSelect').value = "National";
+
+            // 3. Set the status icon
+            document.getElementById('locStatus').innerHTML = '<i class="fas fa-globe"></i> National Average';
+        }
+
+        // --- 5. CHARTS ---
+        function setChart(type, btn) {
+            document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            renderChart(type);
+        }
+
+        function renderChart(type) {
+            const ctx = document.getElementById('goldChart').getContext('2d');
+            const data = chartDataSets[type];
+
+            if (chartInstance) chartInstance.destroy();
+
+            // Gradient
+            const grad = ctx.createLinearGradient(0, 0, 0, 400);
+            grad.addColorStop(0, 'rgba(212, 175, 55, 0.5)');
+            grad.addColorStop(1, 'rgba(255,255,255,0)');
+
+            chartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.labels,
+                    datasets: [{
+                        label: 'Gold Price (24K)',
+                        data: data.data,
+                        borderColor: '#D4AF37',
+                        backgroundColor: grad,
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#fff',
+                        pointBorderColor: '#D4AF37'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { grid: { display: false }, ticks: { color: '#666' } },
+                        y: { grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { color: '#666' } }
+                    }
+                }
+            });
+        }
+        // --- 6. CALCULATOR LOGIC ---
+    let calcMode = 'grams'; // Default mode: 'grams' or 'budget'
+
+    function switchCalcMode(mode) {
+        calcMode = mode;
+        
+        // Update Buttons
+        document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(`btn-mode-${mode}`).classList.add('active');
+
+        // Update Labels & Placeholders
+        const inputLabel = document.getElementById('calc-input-label');
+        const inputField = document.getElementById('calcInput');
+        const resultLabel = document.getElementById('calc-result-label');
+
+        if (mode === 'grams') {
+            inputLabel.innerText = "Enter Weight (in Grams)";
+            inputField.placeholder = "e.g. 5.5";
+            resultLabel.innerText = "Estimated Cost";
+        } else {
+            inputLabel.innerText = "Enter Your Budget (in INR)";
+            inputField.placeholder = "e.g. 50000";
+            resultLabel.innerText = "You Can Buy (Approx)";
+        }
+
+        // Reset and Recalculate
+        inputField.value = '';
+        document.getElementById('calcResult').innerText = (mode === 'grams') ? "₹ 0" : "0.000 g";
+    }
+
+    function calculateGold() {
+        const inputVal = parseFloat(document.getElementById('calcInput').value);
+        if (!inputVal || inputVal <= 0) return;
+
+        // 1. Get Current Rates (From DOM or Global Data)
+        // Note: Using DOM text is safer here as it reflects the currently selected state
+        let price24_10g = parseInt(document.getElementById('price24').innerText.replace(/,/g, ''));
+        let price22_10g = parseInt(document.getElementById('price22').innerText.replace(/,/g, ''));
+
+        // Calculate 1 Gram Rate
+        let rate24_1g = price24_10g / 10;
+        let rate22_1g = price22_10g / 10;
+
+        // 2. Determine Selected Purity
+        const purity = document.querySelector('input[name="purity"]:checked').value;
+        const selectedRate = (purity === "24") ? rate24_1g : rate22_1g;
+
+        const resultDisplay = document.getElementById('calcResult');
+
+        // 3. Calculate based on Mode
+        if (calcMode === 'grams') {
+            // Mode A: Weight -> Price
+            let totalCost = inputVal * selectedRate;
+            resultDisplay.innerText = "₹ " + Math.round(totalCost).toLocaleString('en-IN');
+        } else {
+            // Mode B: Budget -> Weight
+            let totalGrams = inputVal / selectedRate;
+            resultDisplay.innerText = totalGrams.toFixed(3) + " g";
+        }
+    }
+
+        // Start
+        init();
+
+    </script>
+</body>
+</html>
