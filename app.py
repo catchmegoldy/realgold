@@ -23,6 +23,7 @@ import random
 import logging
 import datetime
 import requests
+import threading
 from bs4 import BeautifulSoup
 from flask import Flask, render_template, jsonify, request
 from flask_cors import CORS
@@ -203,38 +204,29 @@ class MarketScraper:
 # ==============================================================================
 #  LAYER 3: SERVICE LOGIC (The Brain)
 # ==============================================================================
-class GoldService:
-    """Orchestrates Data Fetching, Calculation, and Chart Generation."""
 
+class GoldService:
     @staticmethod
     def get_master_price():
-        """
-        Determines the 'Truth' Price.
-        Priority: 1. Fresh Cache (1 Hr) -> 2. Live Scrape -> 3. Stale Cache -> 4. Anchor
-        """
+        # 1. Load the last known price from cache immediately (Ignore expiry)
+        cached_price = CacheManager.load(ignore_expiry=True)
         
-        # 1. Try Fresh Cache (Valid for 1 Hour)
-        cached_price = CacheManager.load(ignore_expiry=False)
-        if cached_price:
-            logger.info("Using Fresh Cache (Valid for 1 Hr)")
-            return cached_price
+        # 2. Check if the cache is actually "stale" (older than 1 hour)
+        # We still return the stale price to the user so they don't wait
+        data = None
+        if os.path.exists(CACHE_FILE):
+            with open(CACHE_FILE, 'r') as f:
+                data = json.load(f)
+        
+        age = time.time() - (data.get('timestamp', 0) if data else 0)
+        
+        # 3. If stale, trigger a background update for the NEXT request
+        if age > CACHE_EXPIRY_SECONDS:
+            logger.info("Cache stale. Triggering background update...")
+            thread = threading.Thread(target=MarketScraper.fetch_goodreturns_and_save)
+            thread.start()
 
-        # 2. Try Live Scrape (If cache expired or empty)
-        live_price = MarketScraper.fetch_goodreturns()
-        if live_price:
-            logger.info("Fetched Live Price. Updating Cache.")
-            CacheManager.save(live_price)
-            return live_price
-            
-        # 3. Use Stale Cache (If live fetch failed, use old data)
-        stale_price = CacheManager.load(ignore_expiry=True)
-        if stale_price:
-            logger.warning("Using Stale Cache (Live fetch failed)")
-            return stale_price
-            
-        # 4. Critical Fallback
-        logger.critical("Using Failsafe Anchor Price")
-        return FAILSAFE_ANCHOR_PRICE
+        return cached_price if cached_price else FAILSAFE_ANCHOR_PRICE
 
     @staticmethod
     def generate_charts(base_price):
@@ -380,4 +372,5 @@ if __name__ == '__main__':
     
 
     app.run(debug=True, port=5000)
+
 
