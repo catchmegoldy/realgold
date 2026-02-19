@@ -156,43 +156,42 @@ class MarketScraper:
 
     @classmethod
     def fetch_goodreturns(cls):
-        """Source A: GoodReturns.in (Primary)"""
-        logger.info("Scraping Source")
-        try:
-            url = "https://www.goodreturns.in/gold-rates/"
-            url = "https://www.tanishq.co.in/gold-rate.html?lang=en_IN"
-            url = "https://www.policybazaar.com/gold-rate/"
-            resp = requests.get(url, headers=cls._get_headers(), timeout=REQUEST_TIMEOUT)
-            
-            if resp.status_code != 200:
-                logger.warning(f"Source A returned status: {resp.status_code}")
-                return None
+        """Source A: Multi-Source Scraping Logic"""
+        # List of backup sources
+        sources = [
+            "https://www.policybazaar.com/gold-rate/",
+            "https://www.goodreturns.in/gold-rates/",
+            "https://www.tanishq.co.in/gold-rate.html?lang=en_IN"
+        ]
+        
+        for url in sources:
+            logger.info(f"Attempting to scrape: {url}")
+            try:
+                resp = requests.get(url, headers=cls._get_headers(), timeout=REQUEST_TIMEOUT)
                 
-            soup = BeautifulSoup(resp.text, 'html.parser')
+                if resp.status_code != 200:
+                    continue # Skip to the next URL if this one fails
+                    
+                soup = BeautifulSoup(resp.text, 'html.parser')
+                tables = soup.find_all("table")
+                for table in tables:
+                    table_text = table.text.lower()
+                    if "10 gram" in table_text and "24" in table_text:
+                        rows = table.find_all("tr")
+                        for row in rows:
+                            cols = row.find_all("td")
+                            if len(cols) > 1 and "10" in cols[0].text:
+                                raw_str = cols[1].text.strip()
+                                clean_str = raw_str.replace('₹', '').replace(',', '').replace('.', '')
+                                price = int(clean_str)
+                                
+                                if cls._validate_price(price):
+                                    return price # Return immediately once success is found
+            except Exception as e:
+                logger.error(f"Error scraping {url}: {e}")
+                continue # Try next URL on error
             
-            # Robust Parsing Logic
-            # We look for tables containing "24 Carat" and "10 Gram"
-            tables = soup.find_all("table")
-            for table in tables:
-                table_text = table.text.lower()
-                if "10 gram" in table_text and "24" in table_text:
-                    rows = table.find_all("tr")
-                    for row in rows:
-                        cols = row.find_all("td")
-                        # Check if first column mentions 10g
-                        if len(cols) > 1 and "10" in cols[0].text:
-                            # Extract Price: "₹ 1,56,440" -> 156440
-                            raw_str = cols[1].text.strip()
-                            clean_str = raw_str.replace('₹', '').replace(',', '').replace('.', '')
-                            price = int(clean_str)
-                            
-                            if cls._validate_price(price):
-                                return price
-        except Exception as e:
-            logger.error(f"Source A Error: {e}")
-            
-        return None
-
+        return None # Only return None if ALL sources fail
     @staticmethod
     def _validate_price(price):
         """Sanity Check to reject outliers or paper gold rates."""
@@ -372,5 +371,6 @@ if __name__ == '__main__':
     
 
     app.run(debug=True, port=5000)
+
 
 
